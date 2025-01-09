@@ -1,0 +1,12 @@
+azure:
+  scappsblob:
+    connectionstring: DefaultEndpointsProtocol=https;AccountName=dummystorageaccount;AccountKey=abc12345dummyKey==;EndpointSuffix=core.windows.net
+    container: dummy-loans-qa-container
+  servicebus:
+    namespace: "dummy-loans-qa-namespace"
+    topic-client-id: "irlqn-dme1fk-btn7un4-rwzcr7-p8osi"
+    pricing-tier: Standard
+    passwordless-enabled: true
+    topic: "dummy-loans-qa-topic"
+    partition-key: dummy-partition-key
+    managed-identity-client-id: "5gmrb-0orojd-xm4sdjn-7jmkwn-7jufy"

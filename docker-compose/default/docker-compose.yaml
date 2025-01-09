@@ -1,0 +1,119 @@
+version: "3.8"
+
+services:
+  accounts-db:
+    image: postgres:14-bullseye
+    container_name: accounts-db
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: accountsdb
+      POSTGRES_USER: siya7
+      POSTGRES_PASSWORD: Welcome231
+    volumes:
+      - ./pgdata/accounts-data-new:/var/lib/postgresql/data
+    networks:
+      - eazybank
+
+  loan-db:
+    image: postgres:14-bullseye
+    container_name: loan-db
+    ports:
+      - "5437:5432"
+    environment:
+      POSTGRES_DB: loansdb
+      POSTGRES_USER: siya7
+      POSTGRES_PASSWORD: Welcome123
+    volumes:
+      - ./pgdata/loans-data:/var/lib/postgresql/data
+    networks:
+      - eazybank
+
+  cards-db:
+    image: postgres:14-bullseye
+    container_name: cards-db
+    ports:
+      - "5438:5432"
+    environment:
+      POSTGRES_DB: cardsdb
+      POSTGRES_USER: siya7
+      POSTGRES_PASSWORD: Welcome421
+    volumes:
+      - ./pgdata/cards-data-new:/var/lib/postgresql/data
+    networks:
+      - eazybank
+
+  configserver:
+    image: siya7/configserver:1
+    container_name: configserver-ms
+    ports:
+      - "8071:8071"
+    healthcheck:
+      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - eazybank
+
+  accounts:
+    image: siya7/accounts:3
+    container_name: accounts
+    build:
+      context: .
+    ports:
+      - "8084:8080"
+    environment:
+      SPRING_APPLICATION_NAME: "accounts"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://accounts-db:5432/accountsdb
+      SPRING_DATASOURCE_USERNAME: siya7
+      SPRING_DATASOURCE_PASSWORD: Welcome231
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - accounts-db
+      - configserver
+    networks:
+      - eazybank
+
+  loans:
+    image: siya7/loans:1
+    container_name: loans-ms
+    build:
+      context: .
+    ports:
+      - "8085:8080"
+    environment:
+      SPRING_APPLICATION_NAME: "loans"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://loan-db:5432/loansdb
+      SPRING_DATASOURCE_USERNAME: siya7
+      SPRING_DATASOURCE_PASSWORD: Welcome123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - loan-db
+      - configserver
+    networks:
+      - eazybank
+
+  cards:
+    image: siya7/cards:1
+    container_name: cards-ms
+    build:
+      context: .
+    ports:
+      - "8086:8080"
+    environment:
+      SPRING_APPLICATION_NAME: "cards"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://cards-db:5432/cardsdb
+      SPRING_DATASOURCE_USERNAME: siya7
+      SPRING_DATASOURCE_PASSWORD: Welcome421
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - cards-db
+      - configserver
+    networks:
+      - eazybank
+
+networks:
+  eazybank:
+    driver: bridge

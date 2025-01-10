@@ -14,6 +14,11 @@ services:
       - ./pgdata/accounts-data-new:/var/lib/postgresql/data
     networks:
       - eazybank
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U siya7 -d accountsdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   loan-db:
     image: postgres:14-bullseye
@@ -28,6 +33,11 @@ services:
       - ./pgdata/loans-data:/var/lib/postgresql/data
     networks:
       - eazybank
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U siya7 -d loansdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   cards-db:
     image: postgres:14-bullseye
@@ -42,6 +52,11 @@ services:
       - ./pgdata/cards-data-new:/var/lib/postgresql/data
     networks:
       - eazybank
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U siya7 -d cardsdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   configserver:
     image: siya7/configserver:1
@@ -49,16 +64,54 @@ services:
     ports:
       - "8071:8071"
     healthcheck:
-      test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      test: "curl --fail --silent localhost:8071/actuator/health | grep UP || exit 1"
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 10s
     networks:
       - eazybank
+    volumes:
+      - configserver-data:/configserver/data
+
+  eurekaserver:
+    image: siya7/eurekaserver:5
+    container_name: eurekaserver
+    ports:
+      - "8070:8070"
+    environment:
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    depends_on:
+      configserver:
+        condition: service_healthy
+    networks:
+      - eazybank
+    volumes:
+      - eurekaserver-data:/eurekaserver/data
+
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - eazybank
+    healthcheck:
+      test: [ "CMD-SHELL", "rabbitmq-diagnostics -q ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   accounts:
-    image: siya7/accounts:3
+    image: siya7/accounts:4
     container_name: accounts
     build:
       context: .
@@ -70,50 +123,81 @@ services:
       SPRING_DATASOURCE_USERNAME: siya7
       SPRING_DATASOURCE_PASSWORD: Welcome231
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
-      - accounts-db
-      - configserver
+      accounts-db:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
     networks:
       - eazybank
 
   loans:
-    image: siya7/loans:1
+    image: siya7/loans:3
     container_name: loans-ms
     build:
       context: .
     ports:
-      - "8085:8080"
+      - "8085:8085"
     environment:
       SPRING_APPLICATION_NAME: "loans"
       SPRING_DATASOURCE_URL: jdbc:postgresql://loan-db:5432/loansdb
       SPRING_DATASOURCE_USERNAME: siya7
       SPRING_DATASOURCE_PASSWORD: Welcome123
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
-      - loan-db
-      - configserver
+      loan-db:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
     networks:
       - eazybank
 
   cards:
-    image: siya7/cards:1
+    image: siya7/cards:3
     container_name: cards-ms
     build:
       context: .
     ports:
-      - "8086:8080"
+      - "8086:8086"
     environment:
       SPRING_APPLICATION_NAME: "cards"
       SPRING_DATASOURCE_URL: jdbc:postgresql://cards-db:5432/cardsdb
       SPRING_DATASOURCE_USERNAME: siya7
       SPRING_DATASOURCE_PASSWORD: Welcome421
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: guest
+      SPRING_RABBITMQ_PASSWORD: guest
     depends_on:
-      - cards-db
-      - configserver
+      cards-db:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
     networks:
       - eazybank
 
 networks:
   eazybank:
     driver: bridge
+
+volumes:
+  configserver-data:
+  eurekaserver-data:

@@ -111,12 +111,18 @@ services:
       retries: 5
 
   accounts:
-    image: siya7/accounts:4
+    image: siya7/accounts:6
     container_name: accounts
     build:
       context: .
     ports:
       - "8084:8080"
+    healthcheck:
+      test: "curl --fail --silent localhost:8084/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "accounts"
       SPRING_DATASOURCE_URL: jdbc:postgresql://accounts-db:5432/accountsdb
@@ -139,12 +145,18 @@ services:
       - eazybank
 
   loans:
-    image: siya7/loans:3
+    image: siya7/loans:5
     container_name: loans-ms
     build:
       context: .
     ports:
       - "8085:8085"
+    healthcheck:
+      test: "curl --fail --silent localhost:8085/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "loans"
       SPRING_DATASOURCE_URL: jdbc:postgresql://loan-db:5432/loansdb
@@ -167,12 +179,18 @@ services:
       - eazybank
 
   cards:
-    image: siya7/cards:3
+    image: siya7/cards:6
     container_name: cards-ms
     build:
       context: .
     ports:
       - "8086:8086"
+    healthcheck:
+      test: "curl --fail --silent localhost:8086/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "cards"
       SPRING_DATASOURCE_URL: jdbc:postgresql://cards-db:5432/cardsdb
@@ -191,6 +209,23 @@ services:
         condition: service_healthy
       eurekaserver:
         condition: service_healthy
+    networks:
+      - eazybank
+
+  gatewayserver:
+    image: "siya7/gatewayserver:1"
+    container_name: gatewayserver-ms
+    ports:
+      - "8072:8072"
+    depends_on:
+      loans:
+        condition: service_healthy
+      cards:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
     networks:
       - eazybank
 

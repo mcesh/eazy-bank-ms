@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: eurekaserver
+  profiles:
+    active: prod
   config:
     import: "optional:configserver:http://localhost:8071/"
 

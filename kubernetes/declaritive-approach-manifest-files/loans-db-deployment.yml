@@ -1,0 +1,57 @@
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loans-postgres-deployment
+  labels:
+    app: loans-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loans-postgres
+  template:
+    metadata:
+      labels:
+        app: loans-postgres
+    spec:
+      containers:
+      - name: loans-postgres
+        image: postgres:14
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: loansdb
+        - name: POSTGRES_USER
+          value: siya7
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: loans-postgres-secret
+              key: password
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: loans-db
+spec:
+  selector:
+    app: loans-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+# Secret for PostgreSQL Credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: loans-postgres-secret
+type: Opaque
+data:
+  password: V2VsY29tZTIzMQ== # Base64-encoded string of "password"

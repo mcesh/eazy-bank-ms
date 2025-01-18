@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 1  # You can scale this as needed
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:management  # Using the RabbitMQ image with management plugin enabled
+          ports:
+            - containerPort: 5672  # Default AMQP port
+            - containerPort: 15672  # Default RabbitMQ management UI port
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              value: guest  # RabbitMQ default user
+            - name: RABBITMQ_DEFAULT_PASS
+              value: guest  # RabbitMQ default password
+          volumeMounts:
+            - name: rabbitmq-data
+              mountPath: /var/lib/rabbitmq  # Persistent storage mount path
+      volumes:
+        - name: rabbitmq-data
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc  # Referencing PVC for persistent storage
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  ports:
+    - port: 5672  # AMQP port
+      targetPort: 5672
+      name: amqp
+    - port: 15672  # Management UI port
+      targetPort: 15672
+      name: management
+  selector:
+    app: rabbitmq
+  clusterIP: None  # Set clusterIP to None for headless service

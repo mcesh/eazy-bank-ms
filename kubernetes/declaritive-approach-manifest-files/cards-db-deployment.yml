@@ -1,0 +1,57 @@
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cards-postgres-deployment
+  labels:
+    app: cards-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cards-postgres
+  template:
+    metadata:
+      labels:
+        app: cards-postgres
+    spec:
+      containers:
+      - name: cards-postgres
+        image: postgres:14
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: cardsdb
+        - name: POSTGRES_USER
+          value: siya7
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: cards-postgres-secret
+              key: password
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: cards-db
+spec:
+  selector:
+    app: cards-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+# Secret for PostgreSQL Credentials
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cards-postgres-secret
+type: Opaque
+data:
+  password: V2VsY29tZTQyMQ== # Base64-encoded string of "password"

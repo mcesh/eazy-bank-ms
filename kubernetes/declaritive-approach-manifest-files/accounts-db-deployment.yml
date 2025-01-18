@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: accounts-postgres-deployment
+  labels:
+    app: accounts-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: accounts-postgres
+  template:
+    metadata:
+      labels:
+        app: accounts-postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: accountsdb
+        - name: POSTGRES_USER
+          value: siya7
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: accounts-postgres-secret
+              key: password
+---
+# PostgreSQL Service for `accounts-db`
+apiVersion: v1
+kind: Service
+metadata:
+  name: accounts-db
+spec:
+  selector:
+    app: accounts-postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+---
+# Secret for PostgreSQL Credentials for `accounts-db`
+apiVersion: v1
+kind: Secret
+metadata:
+  name: accounts-postgres-secret
+type: Opaque
+data:
+  password: V2VsY29tZTEyMw== # Base64-encoded string of "password"

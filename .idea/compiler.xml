@@ -10,9 +10,18 @@
         <module name="eurekaserver" />
         <module name="gatewayserver" />
         <module name="cards" />
+        <module name="loans" />
         <module name="accounts" />
         <module name="configserver" />
-        <module name="loans" />
+      </profile>
+      <profile name="Annotation profile for message" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="message" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -22,6 +31,7 @@
       <module name="eurekaserver" target="17" />
       <module name="gatewayserver" target="17" />
       <module name="loans" target="17" />
+      <module name="message" target="17" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -32,6 +42,7 @@
       <module name="eurekaserver" options="-parameters" />
       <module name="gatewayserver" options="-parameters" />
       <module name="loans" options="-parameters" />
+      <module name="message" options="-parameters" />
     </option>
   </component>
 </project>

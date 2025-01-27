@@ -86,10 +86,10 @@ spec:
           - name: SPRING_DATASOURCE_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.postgresql.auth.existingSecret }}
-                key: postgresql-password
+                name: {{ .Values.secret.name }}
+                key: password
           - name: SPRING_DATASOURCE_URL
-            value: jdbc:postgresql://{{ .Values.postgresql.host }}:{{ .Values.postgresql.port }}/{{ .Values.postgresql.auth.database }}
+            value: jdbc:postgresql://{{ .Values.env.POSTGRES_HOST }}:{{ .Values.env.POSTGRES_PORT }}/{{ .Values.env.POSTGRES_DB }}
             {{- end }}
 
           - name: SPRING_APPLICATION_NAME

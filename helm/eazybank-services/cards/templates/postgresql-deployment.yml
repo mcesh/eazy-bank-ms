@@ -17,13 +17,13 @@ spec:
           image: postgres:14
           env:
             - name: POSTGRES_DB
-              value: {{ .Values.postgresql.auth.database }}
+              value: {{ .Values.env.POSTGRES_DB }}
             - name: POSTGRES_USER
-              value: {{ .Values.postgresql.auth.username }}
+              value: {{ .Values.env.POSTGRES_USER }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.postgresql.auth.existingSecret }}
-                  key: {{ .Values.postgresql.auth.secretKeys.userPasswordKey }}
+                  name: {{ .Values.secret.name }}
+                  key: {{ .Values.secret.passwordKey }}
           ports:
-            - containerPort: {{ .Values.postgresql.port | default 5432 }}
+            - containerPort: {{ .Values.env.POSTGRES_PORT | default 5432 }}

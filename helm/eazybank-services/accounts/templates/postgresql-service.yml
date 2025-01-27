@@ -5,8 +5,8 @@ metadata:
 spec:
   ports:
     - protocol: TCP
-      port: {{ .Values.postgresql.port }}
-      targetPort: {{ .Values.postgresql.port }}
+      port: {{ .Values.env.POSTGRES_PORT }}
+      targetPort: {{ .Values.env.POSTGRES_PORT }}
   type: ClusterIP
   selector:
     app: accounts-postgres

@@ -19,6 +19,16 @@ service:
   port: 8085
   targetPort: 8085
 
+env:
+  POSTGRES_DB: loansdb
+  POSTGRES_USER: siya7
+  POSTGRES_PORT: 5432
+  POSTGRES_HOST: loans-db
+
+secret:
+  name: loans-postgres-secret
+  passwordKey: password
+
 rabbitmq:
   image: rabbitmq:management
   username: guest
@@ -28,33 +38,6 @@ rabbitmq:
   pv:
     storage: 1Gi
     path: /mnt/data/rabbitmq
-
-postgresql:
-  nameOverride: "loans-db"
-  global:
-    postgresql:
-      auth:
-        postgresPassword: ""
-        password: ""
-        username: "siya7"
-        database: "loansdb"
-        existingSecret: "loans-postgres-secret"
-        secretKeys:
-          adminPasswordKey: "postgresql-postgres-password"
-          userPasswordKey: "postgresql-password"
-  auth:
-    postgresPassword: ""
-    password: ""
-    existingSecret: "loans-postgres-secret"
-    secretKeys:
-      adminPasswordKey: "postgresql-postgres-password"
-      userPasswordKey: "postgresql-password"
-  port: 5432
-  host: loans-db
-  #primary:
-    #persistence:
-      #enabled: true
-      #size: 10Gi
 
 appname_enabled: true
 profile_enabled: true

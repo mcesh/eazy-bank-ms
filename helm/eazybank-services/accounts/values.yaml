@@ -19,6 +19,16 @@ service:
   port: 8080
   targetPort: 8080
 
+env:
+  POSTGRES_DB: accountsdb
+  POSTGRES_USER: siya7
+  POSTGRES_PORT: 5432
+  POSTGRES_HOST: accounts-db
+
+secret:
+  name: accounts-postgres-secret
+  passwordKey: password
+
 rabbitmq:
   image: rabbitmq:management
   username: guest
@@ -29,33 +39,6 @@ rabbitmq:
     storage: 1Gi
     path: /mnt/data/rabbitmq
 
-
-postgresql:
-  nameOverride: "accounts-db"
-  global:
-    postgresql:
-      auth:
-        postgresPassword: ""
-        password: ""
-        username: "siya7"
-        database: "accountsdb"
-        existingSecret: "accounts-postgres-secret"
-        secretKeys:
-          adminPasswordKey: "postgresql-postgres-password"
-          userPasswordKey: "postgresql-password"
-  auth:
-    postgresPassword: ""
-    password: ""
-    existingSecret: "accounts-postgres-secret"
-    secretKeys:
-      adminPasswordKey: "postgresql-postgres-password"
-      userPasswordKey: "postgresql-password"
-  port: 5432
-  host: accounts-db
-  #primary:
-    #persistence:
-      #enabled: true
-      #size: 10Gi
 
 appname_enabled: true
 profile_enabled: true

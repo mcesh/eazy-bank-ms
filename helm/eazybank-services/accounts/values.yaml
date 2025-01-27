@@ -1,0 +1,68 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: accounts-deployment
+serviceName: accounts
+appLabel: accounts
+appName: accounts
+
+replicaCount: 1
+
+image:
+  repository: siya7/accounts
+  tag: 14
+
+containerPort: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+rabbitmq:
+  image: rabbitmq:management
+  username: guest
+  password: guest
+  port: 5672
+  managementPort: 15672
+  pv:
+    storage: 1Gi
+    path: /mnt/data/rabbitmq
+
+
+postgresql:
+  nameOverride: "accounts-db"
+  global:
+    postgresql:
+      auth:
+        postgresPassword: ""
+        password: ""
+        username: "siya7"
+        database: "accountsdb"
+        existingSecret: "accounts-postgres-secret"
+        secretKeys:
+          adminPasswordKey: "postgresql-postgres-password"
+          userPasswordKey: "postgresql-password"
+  auth:
+    postgresPassword: ""
+    password: ""
+    existingSecret: "accounts-postgres-secret"
+    secretKeys:
+      adminPasswordKey: "postgresql-postgres-password"
+      userPasswordKey: "postgresql-password"
+  port: 5432
+  host: accounts-db
+  #primary:
+    #persistence:
+      #enabled: true
+      #size: 10Gi
+
+appname_enabled: true
+profile_enabled: true
+config_enabled: true
+eureka_enabled: true
+resouceserver_enabled: false
+otel_enabled: true
+kafka_enabled: true
+postgres_enabled: true
+rabbit_mq_enabled: true

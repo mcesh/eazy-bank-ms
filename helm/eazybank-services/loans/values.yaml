@@ -1,0 +1,67 @@
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+deploymentName: loans-deployment
+serviceName: loans
+appLabel: loans
+appName: loans
+
+replicaCount: 1
+
+image:
+  repository: siya7/loans
+  tag: 11
+
+containerPort: 8085
+
+service:
+  type: ClusterIP
+  port: 8085
+  targetPort: 8085
+
+rabbitmq:
+  image: rabbitmq:management
+  username: guest
+  password: guest
+  port: 5672
+  managementPort: 15672
+  pv:
+    storage: 1Gi
+    path: /mnt/data/rabbitmq
+
+postgresql:
+  nameOverride: "loans-db"
+  global:
+    postgresql:
+      auth:
+        postgresPassword: ""
+        password: ""
+        username: "siya7"
+        database: "loansdb"
+        existingSecret: "loans-postgres-secret"
+        secretKeys:
+          adminPasswordKey: "postgresql-postgres-password"
+          userPasswordKey: "postgresql-password"
+  auth:
+    postgresPassword: ""
+    password: ""
+    existingSecret: "loans-postgres-secret"
+    secretKeys:
+      adminPasswordKey: "postgresql-postgres-password"
+      userPasswordKey: "postgresql-password"
+  port: 5432
+  host: loans-db
+  #primary:
+    #persistence:
+      #enabled: true
+      #size: 10Gi
+
+appname_enabled: true
+profile_enabled: true
+config_enabled: true
+eureka_enabled: true
+resouceserver_enabled: false
+otel_enabled: true
+kafka_enabled: true
+postgres_enabled: true
+rabbit_mq_enabled: true

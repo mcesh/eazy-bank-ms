@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: siya7/configserver
-  tag: 2
+  tag: 3
 
 containerPort: 8071
 

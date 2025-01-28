@@ -96,6 +96,10 @@ spec:
             value: {{ .Values.appName }}
 
           {{- if .Values.rabbit_mq_enabled }}
+          - name: SPRING_RABBITMQ_HOST
+            value: rabbitmq
+          - name: SPRING_RABBITMQ_PORT
+            value: "{{ .Values.rabbitmq.port }}"
           - name: SPRING_RABBITMQ_USERNAME
             value: guest
           - name: SPRING_RABBITMQ_PASSWORD

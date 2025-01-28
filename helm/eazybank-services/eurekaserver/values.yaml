@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: siya7/eurekaserver
-  tag: 7
+  tag: 8
 
 containerPort: 8070
 

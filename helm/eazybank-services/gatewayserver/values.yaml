@@ -9,8 +9,8 @@ appName: gatewayserver
 replicaCount: 1
 
 image:
-  repository: eazybytes/gatewayserver
-  tag: 3
+  repository: siya7/gatewayserver
+  tag: 4
 
 containerPort: 8072
 

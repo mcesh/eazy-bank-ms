@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: siya7/gatewayserver
-  tag: 4
+  tag: 5
 
 containerPort: 8072
 
@@ -22,7 +22,7 @@ service:
 appname_enabled: true
 profile_enabled: true
 config_enabled: true
-eureka_enabled: true
+discovery_enabled: true #TODO when using eureka server enable this to true
 resouceserver_enabled: true
 otel_enabled: true
 kafka_enabled: false

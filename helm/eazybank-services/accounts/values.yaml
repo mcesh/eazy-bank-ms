@@ -10,7 +10,7 @@ replicaCount: 1
 
 image:
   repository: siya7/accounts
-  tag: 14
+  tag: 19
 
 containerPort: 8080
 
@@ -43,7 +43,7 @@ rabbitmq:
 appname_enabled: true
 profile_enabled: true
 config_enabled: true
-eureka_enabled: true
+discovery_enabled: true
 resouceserver_enabled: false
 otel_enabled: true
 kafka_enabled: true
